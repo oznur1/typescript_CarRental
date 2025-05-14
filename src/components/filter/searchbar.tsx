@@ -3,9 +3,7 @@ import React from 'react'
 const Searchbar = () => {
   return (
     <div>
-      <label htmlFor="">Marka</label>
-      <input type="text" placeholder='Marka seçiniz'/>
-    
+      searchbar
     
     </div>
   )
