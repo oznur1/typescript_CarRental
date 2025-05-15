@@ -1,4 +1,4 @@
-import Hero from "../hero"
+import Hero from "../../components/hero"
 import Filter from "../../components/filter"
 import List from "../../components/list"
 
