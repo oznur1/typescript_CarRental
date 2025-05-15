@@ -1,5 +1,5 @@
 import { FC } from "react";
-import type { ICar} from '../types';
+import  type { ICar } from "../../types";
 import { motion } from "motion/react";
 
 type Props = {
@@ -7,20 +7,24 @@ type Props = {
 };
 
 const Info: FC<Props> = ({ car }) => {
-  const arr = [
-    {
-      icon: "/steering-wheel.svg",
-      text:car.trany,
-    },
-    {
-      icon: "/tire.svg",
-      text: car.drive,
-    },
-    {
-      icon: "/calendar.svg",
-      text: car.year,
-    },
-  ];
+
+const arr = [
+  {
+    icon: "/steering-wheel.svg", // Vites tipi için uygun
+    text: car.boite_de_vitesse || "Bilinmiyor", // Örn: "M 6"
+  },
+  {
+    icon: "/public/tire.svg", // Hibrit durumu için uygun ikon
+    text:car.hybride && car.hybride !== "null" ? car.hybride : "", 
+  },
+  {
+    icon: "/calendar.svg", // Yıl bilgisi
+    text: car.annee || "Bilinmiyor", // Örn: "2015"
+  },
+];
+
+ 
+
 
   const navVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -34,7 +38,7 @@ const Info: FC<Props> = ({ car }) => {
       },
     }),
   };
-
+  console.log(car);
   return (
     <div className="w-full flex-between">
       {arr.map(({ icon, text }, key) => (
@@ -51,7 +55,10 @@ const Info: FC<Props> = ({ car }) => {
         </motion.div>
       ))}
     </div>
+  
+
   );
 };
 
 export default Info;
+

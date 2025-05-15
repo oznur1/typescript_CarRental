@@ -1,54 +1,83 @@
-import React, { useEffect, useState } from 'react';
-import { fetchCars } from '../../utils/service';
-import type { ICar, IFetchCarsReturn } from '../types';
-import Card from '../hero/card';
+import { useEffect, useRef, useState } from "react";
+import { fetchCars } from "../../utils/service";
+import type { ICar } from "../../types/";
+import Warning from "../warning";
+import Card from "../hero/card";
+import { useSearchParams } from "react-router-dom";
+import ReactPaginate from "react-paginate";
+import Loader from "../loader/index";
 
-
-
-import Warning from '../warning';
 const List = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [cars, setCars] = useState<ICar[] | null>(null);
-  const [total,setTotal]=useState<number| null>(null);
-  
-  
+  const [total, setTotal] = useState<number | null>(null);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = searchParams.get("page") || "1";
+
+  const firstCard = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     setIsLoading(true);
-    fetchCars() 
+    setError(null);
+
+    fetchCars({ page: Number(page) }) // fetchCars fonksiyonunun page parametresini desteklemesi gerekiyor
       .then((data) => {
-    setCars(data.results);
-    setTotal(data.total_count);
+        setCars(data.results);
+        setTotal(data.total_count);
       })
-      .catch((err)=>{
+      .catch((err) => {
         setError(err.message);
       })
-      .finally(()=>{
-        setIsLoading(false)
-      })
-  }, []);
- 
-  console.log(isLoading,cars,total)
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [searchParams]);
 
-  //1) isLoading true ise > API'dan veriler yükleniyor
-  if(isLoading)return <Warning>Yükleniyor</Warning>
+  // Yükleniyor
+  if (isLoading) return <Warning>Yükleniyor</Warning>;
 
-  //2) error dolu ise > API'dan hatalı cevap gelmiştir
-  if(error)return <Warning>{error}</Warning>
+  // Hata
+  if (error) return <Warning>{error}</Warning>;
 
-  //3) cars boş dizi ise > Aranılan kriterde veri yoktur
-  if(!cars || cars.length < 1)return <Warning>Veri Bulunamadı</Warning>
-  
-  
+  // Veri yoksa
+  if (!cars || cars.length < 1) return <Warning>Veri Bulunamadı</Warning>;
+
   return (
     <div>
-   <section className='home-cars-wrapper'>
-    {cars.map((car)=>( 
-      <Card key={car.type_variante_version_tvv} car={car}/>
-    ))}
-   </section>
-    </div>
-  )
-}
+      <section className="home-cars-wrapper">
+        {cars.map((car, i) => (
+          <div
+            key={car.type_variante_version_tvv}
+            ref={i === 0 ? firstCard : null}
+          >
+            <Card car={car} />
+          </div>
+        ))}
+      </section>
 
-export default List
+      {total && (
+        <ReactPaginate
+          breakLabel="..."
+          className="pagination"
+          nextLabel=">"
+          initialPage={Number(page) - 1}
+          onPageChange={(e) => {
+            searchParams.set("page", String(e.selected + 1));
+            setSearchParams(searchParams);
+            if (page !== "1") {
+              firstCard.current?.scrollIntoView();
+            }
+          }}
+          pageRangeDisplayed={5}
+          pageCount={Math.ceil(total / 10)}
+          previousLabel="<"
+          renderOnZeroPageCount={null}
+        />
+      )}
+    </div>
+  );
+};
+
+export default List;

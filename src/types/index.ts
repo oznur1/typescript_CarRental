@@ -89,3 +89,7 @@ export interface IFetchCarsReturn {
   results: ICar[];
   total_count: number;
 }
+export type SelectOption = {
+  label: string;
+  value: string;
+};
